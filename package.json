@@ -17,19 +17,19 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "commander": "^12.1.0",
-    "neverthrow": "^8.1.1",
-    "yaml": "^2.6.1",
-    "zod": "^3.24.1"
+    "commander": "^11.1.0",
+    "neverthrow": "^8.2.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.0",
-    "@dotenvx/dotenvx": "^1.33.0",
-    "@types/node": "^22.10.5",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "@dotenvx/dotenvx": "^1.67.0",
+    "@types/node": "^25.9.1",
     "husky": "^9.1.7",
-    "oxlint": "^0.15.6",
-    "typescript": "^5.7.3",
-    "vitest": "^2.1.8"
+    "oxlint": "^1.66.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
   }
 }
