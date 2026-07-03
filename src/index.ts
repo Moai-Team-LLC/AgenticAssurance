@@ -11,3 +11,6 @@ export const AAL_CORE_VERSION = "0.1.0" as const;
 
 /** Verdict vocabulary. Fail-closed: unknown/inconclusive is `not_verified`, never `safe`. */
 export type Verdict = "pass" | "fail" | "not_verified";
+
+export * from "./manifest";
+export * from "./adapter";

@@ -1,0 +1,47 @@
+{
+  "manifestVersion": "0.1",
+  "name": "mitigated-support-agent",
+  "identity": { "delegated": true, "scoped": true },
+  "tools": [
+    {
+      "name": "read_customer_records",
+      "sideEffect": "read",
+      "dataScopes": [{ "id": "customer-pii", "sensitivity": "private" }],
+      "description": "Reads customer records including PII."
+    },
+    {
+      "name": "send_email",
+      "sideEffect": "external-egress",
+      "dataScopes": [],
+      "description": "Sends email — gated by an egress allow-list and human approval."
+    },
+    {
+      "name": "run_shell",
+      "sideEffect": "code-exec",
+      "dataScopes": [],
+      "description": "Executes a shell command — sandboxed, egress denied."
+    },
+    {
+      "name": "write_ticket",
+      "sideEffect": "write",
+      "dataScopes": [{ "id": "tickets", "sensitivity": "public" }],
+      "description": "Creates a support ticket."
+    }
+  ],
+  "untrustedIngress": [
+    { "id": "retrieved-docs", "kind": "retrieval" },
+    { "id": "inbound-email", "kind": "email" }
+  ],
+  "declaredMitigations": [
+    {
+      "id": "egress-allowlist",
+      "breaks": "external-egress",
+      "control": "egress allow-list + out-of-band human approval before any send"
+    },
+    {
+      "id": "exec-sandbox",
+      "breaks": "code-exec",
+      "control": "run_shell executes in an egress-denied sandbox with no network"
+    }
+  ]
+}

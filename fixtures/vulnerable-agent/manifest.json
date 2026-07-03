@@ -1,0 +1,36 @@
+{
+  "manifestVersion": "0.1",
+  "name": "vulnerable-support-agent",
+  "identity": { "delegated": true, "scoped": false },
+  "tools": [
+    {
+      "name": "read_customer_records",
+      "sideEffect": "read",
+      "dataScopes": [{ "id": "customer-pii", "sensitivity": "private" }],
+      "description": "Reads customer records including PII."
+    },
+    {
+      "name": "send_email",
+      "sideEffect": "external-egress",
+      "dataScopes": [],
+      "description": "Sends email to any recipient (external egress)."
+    },
+    {
+      "name": "run_shell",
+      "sideEffect": "code-exec",
+      "dataScopes": [],
+      "description": "Executes a shell command."
+    },
+    {
+      "name": "write_ticket",
+      "sideEffect": "write",
+      "dataScopes": [{ "id": "tickets", "sensitivity": "public" }],
+      "description": "Creates a support ticket."
+    }
+  ],
+  "untrustedIngress": [
+    { "id": "retrieved-docs", "kind": "retrieval" },
+    { "id": "inbound-email", "kind": "email" }
+  ],
+  "declaredMitigations": []
+}
