@@ -55,6 +55,15 @@ export const Assertion = z.discriminatedUnion("type", [
 ]);
 export type Assertion = z.infer<typeof Assertion>;
 
+function regexCompiles(pattern: string, flags?: string): boolean {
+  try {
+    void new RegExp(pattern, flags);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** The attack's machine-checkable success condition. At least one of assert/llmRubric required. */
 export const SuccessCondition = z
   .object({
@@ -63,6 +72,10 @@ export const SuccessCondition = z
   })
   .refine((s) => s.assert.length > 0 || s.llmRubric !== undefined, {
     message: "success needs at least one `assert` predicate or an `llmRubric`",
+  })
+  // A broken text-matches regex is caught at load (fail-closed), not swallowed to `false` at run time.
+  .refine((s) => s.assert.every((a) => a.type !== "text-matches" || regexCompiles(a.pattern, a.flags)), {
+    message: "a text-matches assertion has an invalid regex pattern",
   });
 export type SuccessCondition = z.infer<typeof SuccessCondition>;
 

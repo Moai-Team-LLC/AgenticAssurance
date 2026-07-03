@@ -68,6 +68,22 @@ describe("attack corpus", () => {
     });
     expect(parsed.success).toBe(false);
   });
+
+  it("rejects a text-matches assertion whose regex does not compile (fail-closed at load)", () => {
+    const parsed = AttackFile.safeParse({
+      attacks: [
+        {
+          id: "x",
+          class: "data-exfil",
+          owasp: "ASI01",
+          atlas: "AML.T0051",
+          input: "hi",
+          success: { assert: [{ type: "text-matches", pattern: "([unclosed" }] },
+        },
+      ],
+    });
+    expect(parsed.success).toBe(false);
+  });
 });
 
 describe("corpus loader errors", () => {
