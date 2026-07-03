@@ -14,6 +14,7 @@ import { AAL_CORE_VERSION } from "./index";
 import { createExecAdapter, type TargetAdapter } from "./adapter";
 import { runScan } from "./scan";
 import { toSarif } from "./report/sarif";
+import { toAssuranceJson } from "./report/json";
 import { renderCliSummary, toMarkdown } from "./report/human";
 import { createAnthropicProvider, type OracleProvider } from "./runner/oracle";
 
@@ -38,6 +39,7 @@ program
   .option("--adapter <kind>", "target adapter: exec | http | sdk", "exec")
   .option("--target <path>", "target config JSON (exec); defaults to target.json next to the manifest")
   .option("--sarif <path>", "write SARIF 2.1.0 output")
+  .option("--json <path>", "write a structured JSON report (for the Evidence layer)")
   .option("--report <path>", "write a Markdown report")
   .option("-n, --runs <n>", "stability runs per dynamic attack", "5")
   .option("--seed <n>", "seed for reproducible runs")
@@ -78,6 +80,7 @@ program
 
     const report = result.value;
     if (opts.sarif) writeFileSync(opts.sarif, `${JSON.stringify(toSarif(report), null, 2)}\n`);
+    if (opts.json) writeFileSync(opts.json, `${JSON.stringify(toAssuranceJson(report), null, 2)}\n`);
     if (opts.report) writeFileSync(opts.report, toMarkdown(report));
 
     process.stdout.write(`${renderCliSummary(report)}\n`);
@@ -92,6 +95,7 @@ interface ScanOpts {
   adapter: string;
   target?: string;
   sarif?: string;
+  json?: string;
   report?: string;
   runs: string;
   seed?: string;

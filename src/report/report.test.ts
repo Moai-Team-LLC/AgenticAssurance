@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createExecAdapter } from "../adapter";
 import { runScan, type ScanReport } from "../scan";
 import { toMarkdown } from "./human";
+import { toAssuranceJson } from "./json";
 import { toSarif, validateSarif } from "./sarif";
 
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url));
@@ -59,6 +60,15 @@ describe("scan report", () => {
       expect(sarif).not.toContain(secret);
       expect(md).not.toContain(secret);
     }
+  });
+
+  it("emits a structured JSON report for the Evidence layer (payload-free)", async () => {
+    const json = toAssuranceJson(await scan());
+    expect(json.schemaVersion).toBe("aal-core-report/0.1");
+    expect(json.attacks.length).toBeGreaterThanOrEqual(8);
+    expect(json.attacks.every((a) => ["succeeded", "contained", "not_verified"].includes(a.outcome))).toBe(true);
+    expect(json.flows.some((f) => f.kind === "lethal-trifecta")).toBe(true);
+    expect(JSON.stringify(json)).not.toContain("attacker.example");
   });
 
   it("is reproducible: two scans produce identical findings", async () => {

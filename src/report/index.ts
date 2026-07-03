@@ -2,3 +2,4 @@
 export * from "./findings";
 export * from "./sarif";
 export * from "./human";
+export * from "./json";
