@@ -41,4 +41,28 @@ describe("exec adapter", () => {
     expect(result.isErr()).toBe(true);
     if (result.isErr()) expect(result.error.kind).toBe("spawn");
   });
+
+  it("never embeds raw stderr in an exit error — references it by hash (NFR-3)", async () => {
+    const crashing = createExecAdapter({
+      command: "node",
+      args: ["-e", "process.stderr.write('SECRET-CANARY-abc'); process.exit(1)"],
+    });
+    const result = await crashing.runAgent("hi");
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.kind).toBe("exit");
+      expect(result.error.message).not.toContain("SECRET-CANARY");
+      expect(result.error.message).toContain("sha256:");
+    }
+  });
+
+  it("never embeds raw stdout in a protocol error — references it by hash (NFR-3)", async () => {
+    const bad = createExecAdapter({ command: "node", args: ["-e", "console.log('SECRET-CANARY not json')"] });
+    const result = await bad.runAgent("hi");
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.kind).toBe("protocol");
+      expect(result.error.message).not.toContain("SECRET-CANARY");
+    }
+  });
 });

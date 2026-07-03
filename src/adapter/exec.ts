@@ -9,8 +9,13 @@
  *
  * The adapter itself performs no side effect — the agent merely *declares* the tool calls it
  * would make; interception of those calls is the sandbox's job (FR-5).
+ *
+ * Hash-not-text (NFR-3): a crashing or misbehaving agent may echo an attack payload or leaked
+ * secret to stdout/stderr. Error messages therefore NEVER embed raw agent output — they reference
+ * it by byte count and sha256, and validation errors use zod issue paths/codes, not received values.
  */
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { err, ok, type Result } from "neverthrow";
 import { z } from "zod";
 import type { AdapterError, AgentRun, TargetAdapter } from "./types";
@@ -82,19 +87,16 @@ function runOnce(
     child.stderr.on("data", (chunk: string) => (stderr += chunk));
 
     child.on("error", (cause) => finish(err({ kind: "spawn", message: messageOf(cause) })));
+    // A child that exits before reading stdin makes our write raise EPIPE; fail closed, don't crash.
+    child.stdin.on("error", (cause) => finish(err({ kind: "spawn", message: messageOf(cause) })));
 
     child.on("close", (code) => {
       const parsed = parseEnvelope(stdout);
       if (parsed.isErr()) {
         // No usable envelope. Distinguish a crash (non-zero exit) from a protocol violation.
+        // stderr is referenced by hash only — it may carry an echoed payload/secret.
         if (code !== 0) {
-          finish(
-            err({
-              kind: "exit",
-              code,
-              message: `agent exited ${code}: ${truncate(stderr) || parsed.error}`,
-            }),
-          );
+          finish(err({ kind: "exit", code, message: `agent exited ${code}; ${digest("stderr", stderr)}` }));
           return;
         }
         finish(err({ kind: "protocol", message: parsed.error }));
@@ -113,12 +115,16 @@ function parseEnvelope(stdout: string): Result<AgentRun, string> {
   let json: unknown;
   try {
     json = JSON.parse(trimmed);
-  } catch (cause) {
-    return err(`agent stdout is not valid JSON: ${messageOf(cause)}`);
+  } catch {
+    // The JSON parser's message echoes the offending bytes — reference stdout by hash instead.
+    return err(`agent stdout is not valid JSON; ${digest("stdout", trimmed)}`);
   }
   const validated = AgentRunEnvelope.safeParse(json);
   if (!validated.success) {
-    return err(`agent envelope failed validation: ${validated.error.issues[0]?.message ?? "unknown"}`);
+    // Use the issue path + code (structural), never the received value (which is agent-controlled).
+    const issue = validated.error.issues[0];
+    const at = issue ? `${issue.path.join(".") || "<root>"}: ${issue.code}` : "unknown";
+    return err(`agent envelope failed validation (${at})`);
   }
   return ok(validated.data);
 }
@@ -127,7 +133,10 @@ function messageOf(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
 }
 
-function truncate(text: string, max = 400): string {
-  const t = text.trim();
-  return t.length > max ? `${t.slice(0, max)}…` : t;
+/** A payload-free reference to some agent output: byte length + a short sha256. */
+function digest(label: string, text: string): string {
+  const trimmed = text.trim();
+  if (trimmed === "") return `${label} empty`;
+  const hash = createHash("sha256").update(trimmed).digest("hex").slice(0, 16);
+  return `${label} ${trimmed.length}b sha256:${hash}`;
 }
