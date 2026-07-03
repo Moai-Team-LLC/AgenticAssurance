@@ -13,7 +13,7 @@ import { loadManifest, type CapabilityManifest } from "./manifest";
 import { loadAttackCorpus, renderAttackInput, type Attack } from "./attacks";
 import { analyzeToxicFlows, type ToxicFlow } from "./graph";
 import { createProcessJailSandbox } from "./runner/sandbox";
-import { hashInput, runSuite, type AttackResult } from "./runner/run";
+import { hashInput, normalizeRuns, runSuite, type AttackResult } from "./runner/run";
 import type { OracleProvider } from "./runner/oracle";
 import {
   computeCoverage,
@@ -66,7 +66,7 @@ export async function runScan(input: ScanInput): Promise<Result<ScanReport, Scan
   const attacks = corpus.value;
 
   const toxicFlows = analyzeToxicFlows(manifest);
-  const runs = Math.max(1, input.runs ?? 5);
+  const runs = normalizeRuns(input.runs);
 
   let attackResults: AttackResult[];
   let dynamicRan: boolean;

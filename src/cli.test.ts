@@ -62,4 +62,13 @@ describe("cli integration", () => {
     expect(md).toContain("Coverage:");
     expect(md).not.toContain("attacker.example");
   });
+
+  it("rejects a non-numeric --runs with a clear error and exit 2 (no fail-open)", () => {
+    const run = spawnSync("bun", ["run", "src/cli.ts", "scan", manifestRel, "--runs", "abc"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    });
+    expect(run.status).toBe(2);
+    expect(run.stderr).toContain("--runs must be a positive integer");
+  });
 });

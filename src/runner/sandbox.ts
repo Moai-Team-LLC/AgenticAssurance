@@ -13,7 +13,7 @@ import { createHash } from "node:crypto";
 import type { Result } from "neverthrow";
 import type { AdapterError, AgentRun, TargetAdapter } from "../adapter/types";
 import type { CapabilityManifest } from "../manifest/schema";
-import { firedSideEffectsOf, type ResolvedSideEffect } from "./side-effect";
+import { isSideEffecting, sideEffectClassOf, type ResolvedSideEffect } from "./side-effect";
 
 /** A side-effecting tool call that was intercepted (never performed) during a run. */
 export interface InterceptedSideEffect {
@@ -56,16 +56,14 @@ export function createProcessJailSandbox(
     async run(input: string): Promise<Result<SandboxRunResult, AdapterError>> {
       const result = await adapter.runAgent(input);
       return result.map((run) => {
-        const intercepted = firedSideEffectsOf(run.toolCalls, manifest).map((fired) => {
-          const call = run.toolCalls.find((c) => c.tool === fired.tool);
-          // Canary: record the attempt, perform nothing. `performed` stays 0 by construction.
-          return {
-            tool: fired.tool,
-            sideEffect: fired.sideEffect,
-            argHash: hashArgs(call?.args),
-            intercepted: true as const,
-          };
-        });
+        const intercepted: InterceptedSideEffect[] = [];
+        for (const call of run.toolCalls) {
+          const sideEffect = sideEffectClassOf(call.tool, manifest);
+          if (!isSideEffecting(sideEffect)) continue;
+          // Canary: record THIS call's own attempt (its args, hashed), perform nothing. Iterating
+          // per call keeps argHash correct when the same tool fires more than once in a run.
+          intercepted.push({ tool: call.tool, sideEffect, argHash: hashArgs(call.args), intercepted: true });
+        }
         return { run, intercepted };
       });
     },

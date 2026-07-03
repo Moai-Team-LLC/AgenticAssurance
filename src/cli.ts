@@ -42,14 +42,30 @@ program
   .option("-n, --runs <n>", "stability runs per dynamic attack", "5")
   .option("--seed <n>", "seed for reproducible runs")
   .action(async (manifest: string, opts: ScanOpts) => {
+    const runs = Number.parseInt(opts.runs, 10);
+    if (!Number.isInteger(runs) || runs < 1) {
+      process.stderr.write(`aal scan: --runs must be a positive integer (got '${opts.runs}')\n`);
+      process.exitCode = 2;
+      return;
+    }
+    let seed: number | undefined;
+    if (opts.seed !== undefined) {
+      seed = Number.parseInt(opts.seed, 10);
+      if (!Number.isInteger(seed)) {
+        process.stderr.write(`aal scan: --seed must be an integer (got '${opts.seed}')\n`);
+        process.exitCode = 2;
+        return;
+      }
+    }
+
     const adapter = resolveAdapter(manifest, opts);
     const provider = resolveProvider();
 
     const result = await runScan({
       manifestPath: manifest,
       ...(opts.attacks ? { attacksDir: opts.attacks } : {}),
-      runs: Number.parseInt(opts.runs, 10),
-      ...(opts.seed !== undefined ? { seed: Number.parseInt(opts.seed, 10) } : {}),
+      runs,
+      ...(seed !== undefined ? { seed } : {}),
       ...(adapter ? { adapter } : {}),
       ...(provider ? { provider } : {}),
     });
