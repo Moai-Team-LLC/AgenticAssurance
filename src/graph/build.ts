@@ -73,11 +73,16 @@ export function buildCapabilityGraph(manifest: CapabilityManifest): CapabilityGr
     edges.push({ from: id, to: AGENT_ID, leg: "untrusted-ingress" });
   }
 
-  // Data scopes, and the read tools that pull them into the agent's context.
+  // Data scopes. Sensitivity is *sticky-private*: if any tool touches a scope privately, the
+  // scope node is private regardless of declaration order — otherwise the trifecta verdict would
+  // flip on the order tools are listed.
   const scopeNode = (scopeId: string, sensitivity: "public" | "private"): string => {
     const id = `data:${scopeId}`;
-    if (!nodes.has(id)) {
+    const existing = nodes.get(id);
+    if (!existing) {
       add({ id, kind: "data-scope", label: scopeId, sensitivity });
+    } else if (sensitivity === "private" && existing.sensitivity !== "private") {
+      existing.sensitivity = "private";
     }
     return id;
   };
@@ -94,14 +99,18 @@ export function buildCapabilityGraph(manifest: CapabilityManifest): CapabilityGr
 
     for (const scope of tool.dataScopes) {
       const dataId = scopeNode(scope.id, scope.sensitivity);
-      if (tool.sideEffect === "read") {
-        // A read pulls this scope into the agent's context; private reads are the trifecta leg.
-        edges.push({
-          from: dataId,
-          to: AGENT_ID,
-          ...(scope.sensitivity === "private" ? { leg: "private-data" as const } : {}),
-        });
+      // Any tool that can read/expose a private scope — a read, an egress, or a code-exec, but
+      // NOT a pure write — puts private data within exfiltration reach. That is the private-data
+      // leg, even when the same tool also egresses (the single-tool "collapse" case a per-`read`
+      // rule would miss entirely).
+      const exposesPrivate = scope.sensitivity === "private" && tool.sideEffect !== "write";
+      if (exposesPrivate) {
+        edges.push({ from: dataId, to: AGENT_ID, leg: "private-data" });
+      } else if (tool.sideEffect === "read") {
+        // A public read still feeds the agent's context (no leg).
+        edges.push({ from: dataId, to: AGENT_ID });
       } else {
+        // A write / egress / exec touches the scope on the way out.
         edges.push({ from: toolId, to: dataId });
       }
     }
@@ -117,6 +126,26 @@ export function brokenLegs(manifest: CapabilityManifest): Set<MitigationLeg> {
     if (m.control.trim() !== "") broken.add(m.breaks);
   }
   return broken;
+}
+
+/**
+ * The source node of a surviving edge into the agent carrying `leg` (undefined if the leg is cut
+ * or absent). Robust to data-scope node dedup: a leg is determined by the edge, not by a node's
+ * stored sensitivity, so the trifecta verdict never depends on tool declaration order.
+ */
+export function sourceViaLeg(
+  graph: CapabilityGraph,
+  leg: MitigationLeg,
+  cut: ReadonlySet<MitigationLeg>,
+): GraphNode | undefined {
+  if (cut.has(leg)) return undefined;
+  for (const edge of graph.edges) {
+    if (edge.to === AGENT_ID && edge.leg === leg) {
+      const node = graph.nodes.get(edge.from);
+      if (node) return node;
+    }
+  }
+  return undefined;
 }
 
 /** Direct predecessors of a node, skipping edges whose leg is in `cut`. */

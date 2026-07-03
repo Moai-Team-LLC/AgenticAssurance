@@ -11,8 +11,8 @@ import {
   AGENT_ID,
   brokenLegs,
   buildCapabilityGraph,
-  predecessors,
   reachableFrom,
+  sourceViaLeg,
   type CapabilityGraph,
   type GraphNode,
   type ToxicFlow,
@@ -25,7 +25,7 @@ function rceWitness(
   graph: CapabilityGraph,
   cut: ReadonlySet<MitigationLeg>,
 ): { ingress: GraphNode; exec: GraphNode } | null {
-  const ingress = predecessors(graph, AGENT_ID, cut).find((n) => n.kind === "untrusted-ingress");
+  const ingress = sourceViaLeg(graph, "untrusted-ingress", cut);
   if (!ingress) return null;
   const reach = reachableFrom(graph, AGENT_ID, cut);
   let exec: GraphNode | undefined;

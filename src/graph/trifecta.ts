@@ -12,8 +12,8 @@ import {
   AGENT_ID,
   brokenLegs,
   buildCapabilityGraph,
-  predecessors,
   reachableFrom,
+  sourceViaLeg,
   type CapabilityGraph,
   type GraphNode,
   type ToxicFlow,
@@ -29,9 +29,8 @@ interface TrifectaWitness {
 
 /** Return the concrete nodes forming a trifecta under the given leg cuts, or null if broken. */
 function witness(graph: CapabilityGraph, cut: ReadonlySet<MitigationLeg>): TrifectaWitness | null {
-  const preds = predecessors(graph, AGENT_ID, cut);
-  const privateSource = preds.find((n) => n.kind === "data-scope" && n.sensitivity === "private");
-  const ingress = preds.find((n) => n.kind === "untrusted-ingress");
+  const privateSource = sourceViaLeg(graph, "private-data", cut);
+  const ingress = sourceViaLeg(graph, "untrusted-ingress", cut);
   if (!privateSource || !ingress) return null;
 
   const reach = reachableFrom(graph, AGENT_ID, cut);

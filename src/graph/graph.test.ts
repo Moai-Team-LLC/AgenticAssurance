@@ -97,3 +97,65 @@ function gen(opts: {
     declaredMitigations: (opts.mitigate ?? []).map((breaks) => ({ breaks, control: "declared control" })),
   };
 }
+
+// Regression tests for the two graph bugs surfaced by the invariant audit.
+function mk(
+  tools: CapabilityManifest["tools"],
+  mitigate: MitigationLeg[] = [],
+): CapabilityManifest {
+  return {
+    manifestVersion: "0.1",
+    name: "regress",
+    identity: { delegated: false, scoped: true },
+    tools,
+    untrustedIngress: [{ id: "web", kind: "web" }],
+    declaredMitigations: mitigate.map((breaks) => ({ breaks, control: "declared control" })),
+  };
+}
+
+describe("toxic-flow graph — audit regressions", () => {
+  it("detects a trifecta when ONE tool both reads private data and egresses (collapse)", () => {
+    const flow = findLethalTrifecta(
+      mk([{ name: "sync_to_webhook", sideEffect: "external-egress", dataScopes: [{ id: "pii", sensitivity: "private" }] }]),
+    );
+    expect(flow).not.toBeNull();
+    expect(flow?.mitigated).toBe(false);
+    expect(flow?.nodes).toContain("data:pii");
+    expect(flow?.nodes).toContain("tool:sync_to_webhook");
+  });
+
+  it("gives the same verdict regardless of tool declaration order (sticky-private scope)", () => {
+    const pubFirst = mk([
+      { name: "rpub", sideEffect: "read", dataScopes: [{ id: "docs", sensitivity: "public" }] },
+      { name: "rpriv", sideEffect: "read", dataScopes: [{ id: "docs", sensitivity: "private" }] },
+      { name: "eg", sideEffect: "external-egress", dataScopes: [] },
+    ]);
+    const privFirst = mk([
+      { name: "rpriv", sideEffect: "read", dataScopes: [{ id: "docs", sensitivity: "private" }] },
+      { name: "rpub", sideEffect: "read", dataScopes: [{ id: "docs", sensitivity: "public" }] },
+      { name: "eg", sideEffect: "external-egress", dataScopes: [] },
+    ]);
+    expect(findLethalTrifecta(pubFirst)).not.toBeNull();
+    expect(findLethalTrifecta(privFirst)).not.toBeNull();
+  });
+
+  it("a write-only tool touching a private scope creates NO private-data leg (no false trifecta)", () => {
+    const flow = findLethalTrifecta(
+      mk([
+        { name: "wpriv", sideEffect: "write", dataScopes: [{ id: "pii", sensitivity: "private" }] },
+        { name: "eg", sideEffect: "external-egress", dataScopes: [] },
+      ]),
+    );
+    expect(flow).toBeNull();
+  });
+
+  it("a mitigation on external-egress still contains the collapse-tool trifecta", () => {
+    const flow = findLethalTrifecta(
+      mk(
+        [{ name: "sync", sideEffect: "external-egress", dataScopes: [{ id: "pii", sensitivity: "private" }] }],
+        ["external-egress"],
+      ),
+    );
+    expect(flow?.mitigated).toBe(true);
+  });
+});
