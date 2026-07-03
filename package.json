@@ -1,0 +1,35 @@
+{
+  "name": "agent-assurance",
+  "version": "0.1.0",
+  "description": "AAL Core — framework-neutral red-team engine for AI agents (toxic-flow graph, side-effect detection, SARIF). Part of the Agent Assurance Layer.",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "aal": "./dist/cli.js" },
+  "exports": { ".": "./src/index.ts" },
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "check": "bun run lint && bun run tsc && bun run test",
+    "lint": "oxlint",
+    "tsc": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json",
+    "cli": "bun run src/cli.ts",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "neverthrow": "^8.1.1",
+    "yaml": "^2.6.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@dotenvx/dotenvx": "^1.33.0",
+    "@types/node": "^22.10.5",
+    "husky": "^9.1.7",
+    "oxlint": "^0.15.6",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
