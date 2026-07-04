@@ -3,7 +3,7 @@
 ## Ground rules
 - **Conventional Commits** (enforced by commitlint + a husky `commit-msg` hook and CI).
   Header <= 72 chars.
-- Run `bun run check` before pushing (format + lint + tsc + tests). CI runs the same gate.
+- Run `bun run check` before pushing (lint + tsc + tests). CI runs the same gate.
 - Strict TypeScript, functional style, `neverthrow` `Result` types, `zod` on all boundaries.
 - **No AgenticMind imports** — AAL Core is framework-neutral.
 - **No secrets/PII/real payloads** in code, tests, or fixtures. Hash, don't store.

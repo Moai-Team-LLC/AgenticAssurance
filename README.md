@@ -2,13 +2,13 @@
 
 [![CI](https://github.com/Moai-Team-LLC/agent-assurance/actions/workflows/ci.yml/badge.svg)](https://github.com/Moai-Team-LLC/agent-assurance/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![OWASP Agentic Top 10](https://img.shields.io/badge/OWASP-Agentic%20ASI01–ASI10-informational)](https://genai.owasp.org/)
+[![OWASP Agentic](https://img.shields.io/badge/OWASP-Agentic%20taxonomy-informational)](https://genai.owasp.org/)
 [![SARIF 2.1.0](https://img.shields.io/badge/output-SARIF%202.1.0-brightgreen)](https://sarifweb.azurewebsites.net/)
 
 The framework-neutral offensive core of the **Agent Assurance Layer (AAL)**. Given a
 **Capability Manifest** and a **runner adapter**, it red-teams any agent:
 
-- runs an **attack library** (mapped to OWASP Top 10 for Agentic Applications, ASI01–ASI10, and MITRE ATLAS) against an isolated copy of the target;
+- runs an **attack library** — mapped to the OWASP Top 10 for Agentic Applications taxonomy and MITRE ATLAS — against an isolated copy of the target (the seed corpus currently exercises ASI01/02/03/05; the schema and graph cover the full ASI01–ASI10 range);
 - builds a **toxic-flow graph** over the agent's declared tools to find lethal-trifecta and RCE composition paths that single-prompt scanners miss;
 - detects **execution-layer side-effect divergences** — the agent refuses in text but a side-effecting tool still fires;
 - emits **SARIF** (for CI/code-scanning) and a human-readable report.
