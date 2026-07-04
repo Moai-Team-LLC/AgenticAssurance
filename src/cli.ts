@@ -60,6 +60,16 @@ program
       }
     }
 
+    if (opts.adapter !== "exec") {
+      // Fail closed: an operator who asked for a dynamic adapter must not be handed a silent
+      // static-only scan they'd mistake for a completed red-team.
+      process.stderr.write(
+        `aal scan: adapter '${opts.adapter}' is not implemented — only 'exec' is supported. Aborting.\n`,
+      );
+      process.exitCode = 2;
+      return;
+    }
+
     const adapter = resolveAdapter(manifest, opts);
     const provider = resolveProvider();
 
@@ -101,12 +111,8 @@ interface ScanOpts {
   seed?: string;
 }
 
-/** Resolve an exec adapter from a target config; return undefined for a static-only scan. */
+/** Resolve the exec adapter from a target config; undefined ⇒ static-only (no target configured). */
 function resolveAdapter(manifest: string, opts: ScanOpts): TargetAdapter | undefined {
-  if (opts.adapter !== "exec") {
-    process.stderr.write(`aal scan: adapter '${opts.adapter}' is not implemented yet — running static-only.\n`);
-    return undefined;
-  }
   const targetPath = opts.target ?? join(dirname(manifest), "target.json");
   if (!existsSync(targetPath)) {
     process.stderr.write(`aal scan: no target config at ${targetPath} — running static-only.\n`);
