@@ -54,6 +54,18 @@ It writes SARIF 2.1.0 (`out.sarif`) for code-scanning dashboards and a Markdown 
 Without a `target.json` the scan runs **static-only** (toxic-flow graph) and honestly marks every
 dynamic attack `not_verified`.
 
+## Cycle-of-Trust policy pack
+
+Where AAL Core *detects* boundary violations offensively, [`policy-pack/`](./policy-pack/)
+*prevents* the most direct one — an agent editing its own tools, permissions, or
+hooks — and streams a hash-not-text evidence event for every attempt (→ AgenticMind
+`/hooks/audit`). It layers `permissions.deny` + a managed-settings fragment that
+disables `bypassPermissions` + a `PreToolUse` guard hook, and is explicit about
+which layer holds in which permission mode (a `PreToolUse` deny alone does **not**
+hold under `bypassPermissions`). See [`policy-pack/README.md`](./policy-pack/README.md)
+and [ADR-0001](./docs/adr/0001-layered-cycle-of-trust-enforcement.md); the offline
+gate is `bun x vitest run src/policy/`.
+
 ## Hard invariants
 - **No AgenticMind dependency** (framework-neutral core).
 - **Fail-closed:** inconclusive ⇒ `not_verified`, never `safe`.

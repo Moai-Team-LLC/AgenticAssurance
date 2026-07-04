@@ -1,0 +1,55 @@
+{
+  "$comment": "Cycle-of-Trust reference policy pack — PROJECT/USER settings fragment. Merge into .claude/settings.json. This layer holds in default / plan / acceptEdits / dontAsk modes; it is NOT sufficient for bypassPermissions (delta D1) — install managed-settings.json for that. Set AAL_AUDIT_URL / AAL_AUDIT_TOKEN in the environment to stream evidence to AgenticMind /hooks/audit (WS2).",
+  "permissions": {
+    "deny": [
+      "Write(**/.claude/settings.json)",
+      "Edit(**/.claude/settings.json)",
+      "Write(**/.claude/settings.local.json)",
+      "Edit(**/.claude/settings.local.json)",
+      "Write(**/.claude/hooks/**)",
+      "Edit(**/.claude/hooks/**)",
+      "Write(**/.claude/agents/**)",
+      "Edit(**/.claude/agents/**)",
+      "Write(**/.mcp.json)",
+      "Edit(**/.mcp.json)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/policy-pack/hooks/guard-protected-paths.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "http",
+            "url": "${AAL_AUDIT_URL}",
+            "headers": { "Authorization": "Bearer ${AAL_AUDIT_TOKEN}" },
+            "allowedEnvVars": ["AAL_AUDIT_URL", "AAL_AUDIT_TOKEN"]
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "${AAL_AUDIT_URL}",
+            "headers": { "Authorization": "Bearer ${AAL_AUDIT_TOKEN}" },
+            "allowedEnvVars": ["AAL_AUDIT_URL", "AAL_AUDIT_TOKEN"]
+          }
+        ]
+      }
+    ]
+  }
+}

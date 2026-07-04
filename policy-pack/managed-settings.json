@@ -1,0 +1,18 @@
+{
+  "$comment": "Cycle-of-Trust reference policy pack — ADMIN MANAGED settings. Install at the OS managed-settings path (macOS: /Library/Application Support/ClaudeCode/managed-settings.json; Linux: /etc/claude-code/managed-settings.json). Managed settings CANNOT be overridden by the user or the agent — this is the only layer whose deny survives, and disableBypassPermissionsMode is the only mechanism that makes the boundary hold in EVERY permission mode (delta D1). ⚠ Verify `disableBypassPermissionsMode` against the current managed-settings docs before rollout — it is the load-bearing key.",
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Write(**/.claude/settings.json)",
+      "Edit(**/.claude/settings.json)",
+      "Write(**/.claude/settings.local.json)",
+      "Edit(**/.claude/settings.local.json)",
+      "Write(**/.claude/hooks/**)",
+      "Edit(**/.claude/hooks/**)",
+      "Write(**/.claude/agents/**)",
+      "Edit(**/.claude/agents/**)",
+      "Write(**/.mcp.json)",
+      "Edit(**/.mcp.json)"
+    ]
+  }
+}
