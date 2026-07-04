@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a new detection, attack class, adapter, or output format
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What assurance gap or use case is not covered today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: |
+        What should `aal` do? If it is a new attack, note the OWASP ASI id and MITRE
+        ATLAS technique it maps to. Attacks are data (YAML) — many additions need no engine change.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

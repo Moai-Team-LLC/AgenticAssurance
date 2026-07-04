@@ -1,0 +1,38 @@
+name: Bug report
+description: Report a defect in agent-assurance (a false positive/negative, a crash, a bad output)
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Do not paste real secrets or working jailbreak payloads** —
+        use a hash or a synthetic/reserved-domain example.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did `aal` do, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: The command, a minimal manifest, and the observed output (redact payloads).
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `aal --version` (or the git SHA).
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Node version, Bun version.
+    validations:
+      required: false

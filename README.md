@@ -1,5 +1,10 @@
 # AAL Core (`agent-assurance`)
 
+[![CI](https://github.com/Moai-Team-LLC/agent-assurance/actions/workflows/ci.yml/badge.svg)](https://github.com/Moai-Team-LLC/agent-assurance/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![OWASP Agentic Top 10](https://img.shields.io/badge/OWASP-Agentic%20ASI01–ASI10-informational)](https://genai.owasp.org/)
+[![SARIF 2.1.0](https://img.shields.io/badge/output-SARIF%202.1.0-brightgreen)](https://sarifweb.azurewebsites.net/)
+
 The framework-neutral offensive core of the **Agent Assurance Layer (AAL)**. Given a
 **Capability Manifest** and a **runner adapter**, it red-teams any agent:
 
@@ -11,13 +16,20 @@ The framework-neutral offensive core of the **Agent Assurance Layer (AAL)**. Giv
 It is **not** a runtime guardrail and **not** a generic code scanner. The AgenticMind-native
 compliance/evidence layer (AIUC-1 gap analysis, auditor bundle) is a separate package.
 
-## Quickstart
+## Install
 
 ```bash
+# one-off, no install (once published):
+npx agent-assurance scan path/to/manifest.json --sarif out.sarif
+
+# or from source (contributors):
+git clone https://github.com/Moai-Team-LLC/agent-assurance && cd agent-assurance
 nvm use            # Node >= 22.18 (for oxlint)
 bun install
 bun run check      # lint + typecheck + tests
 ```
+
+## Quickstart
 
 Red-team the bundled reference agent — a deliberately vulnerable fixture (a lethal trifecta,
 an RCE path, and a refuse-in-text-but-fire divergence):

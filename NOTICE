@@ -1,0 +1,15 @@
+agent-assurance (AAL Core)
+Copyright (c) 2026 Moai Team LLC
+
+This product is licensed under the MIT License (see LICENSE).
+
+It productizes concepts and seed material from the Agentic Product Standard
+(Moai Team LLC, MIT — https://github.com/Moai-Team-LLC/agentic-product-standard),
+specifically the `templates/security/` red-team & supply-chain kit:
+  - lethal_trifecta_check.py  → src/graph/ (toxic-flow graph, TypeScript port)
+  - injection_cases.yaml      → attacks/ (attack corpus)
+  - pin_mcp_tools.sh          → MCP hash-pin / rug-pull concept
+
+Attack mappings reference the OWASP Top 10 for Agentic Applications (ASI01–ASI10)
+and MITRE ATLAS technique identifiers. Those taxonomies are the property of their
+respective owners and are referenced for interoperability only.
