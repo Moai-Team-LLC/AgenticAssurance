@@ -5,6 +5,12 @@ This project publishes to npm as **`agent-assurance`** and cuts a GitHub Release
 
 ## One-time setup
 
+0. **Commit a lockfile** (required — CI and release run `bun install --frozen-lockfile`):
+   ```bash
+   bun install          # generates bun.lock from package.json
+   git add bun.lock && git commit -m "build: add bun lockfile"
+   ```
+   Without a committed `bun.lock`, the frozen install in CI/release fails.
 1. **Create the GitHub repo** (public) and push:
    ```bash
    gh repo create Moai-Team-LLC/agent-assurance --public --source . --remote origin --push
