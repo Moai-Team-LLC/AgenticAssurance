@@ -65,4 +65,32 @@ describe("exec adapter", () => {
       expect(result.error.message).not.toContain("SECRET-CANARY");
     }
   });
+
+  it("does not leak the operator's env (e.g. ANTHROPIC_API_KEY) into the target-under-test", async () => {
+    const saved = process.env.ANTHROPIC_API_KEY;
+    process.env.ANTHROPIC_API_KEY = "sk-canary-must-not-leak";
+    try {
+      const echo = createExecAdapter({
+        command: "node",
+        args: ["-e", "process.stdout.write(JSON.stringify({text: process.env.ANTHROPIC_API_KEY ?? 'ABSENT', toolCalls: []}))"],
+      });
+      const result = await echo.runAgent("x");
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) expect(result.value.text).toBe("ABSENT");
+    } finally {
+      if (saved === undefined) delete process.env.ANTHROPIC_API_KEY;
+      else process.env.ANTHROPIC_API_KEY = saved;
+    }
+  });
+
+  it("forwards the adapter's explicitly-scoped env to the target", async () => {
+    const echo = createExecAdapter({
+      command: "node",
+      args: ["-e", "process.stdout.write(JSON.stringify({text: process.env.AAL_SCOPED ?? 'MISSING', toolCalls: []}))"],
+      env: { AAL_SCOPED: "present" },
+    });
+    const result = await echo.runAgent("x");
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) expect(result.value.text).toBe("present");
+  });
 });

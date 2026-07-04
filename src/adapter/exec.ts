@@ -58,7 +58,7 @@ function runOnce(
     try {
       child = spawn(config.command, config.args ?? [], {
         cwd: config.cwd,
-        env: { ...process.env, ...config.env },
+        env: sandboxEnv(config),
         stdio: ["pipe", "pipe", "pipe"],
       });
     } catch (cause) {
@@ -127,6 +127,21 @@ function parseEnvelope(stdout: string): Result<AgentRun, string> {
     return err(`agent envelope failed validation (${at})`);
   }
   return ok(validated.data);
+}
+
+/**
+ * The environment the target-under-test runs with. We do NOT forward the operator's environment:
+ * it holds AAL's own oracle `ANTHROPIC_API_KEY` and any host secrets, and the target may be
+ * malicious. Pass only a minimal base (PATH/HOME, so it can find binaries) plus the adapter's
+ * explicitly-scoped `env` (FR-5.3: secrets a target genuinely needs come via dotenvx scoped to the
+ * sandbox, not inherited from the operator).
+ */
+function sandboxEnv(config: ExecAdapterConfig): Record<string, string> {
+  const base: Record<string, string> = {};
+  if (process.env.PATH) base.PATH = process.env.PATH;
+  if (process.env.HOME) base.HOME = process.env.HOME;
+  if (process.env.SYSTEMROOT) base.SYSTEMROOT = process.env.SYSTEMROOT; // Windows: needed to spawn
+  return { ...base, ...config.env };
 }
 
 function messageOf(cause: unknown): string {
