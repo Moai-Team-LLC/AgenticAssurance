@@ -4,9 +4,31 @@
   "description": "AAL Core — framework-neutral red-team engine for AI agents (toxic-flow graph, side-effect detection, SARIF). Part of the Agent Assurance Layer.",
   "type": "module",
   "license": "MIT",
+  "author": "Moai Team LLC",
+  "homepage": "https://github.com/Moai-Team-LLC/agent-assurance#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/Moai-Team-LLC/agent-assurance.git" },
+  "bugs": { "url": "https://github.com/Moai-Team-LLC/agent-assurance/issues" },
+  "keywords": [
+    "ai",
+    "ai-security",
+    "agent",
+    "agentic",
+    "red-team",
+    "security",
+    "owasp",
+    "owasp-agentic",
+    "llm",
+    "prompt-injection",
+    "sarif",
+    "mcp",
+    "toxic-flow",
+    "lethal-trifecta"
+  ],
   "bin": { "aal": "./dist/cli.js" },
   "exports": { ".": "./src/index.ts" },
+  "files": ["dist", "src", "attacks", "fixtures", "CLAUDE.md"],
   "engines": { "node": ">=22.18" },
+  "publishConfig": { "access": "public", "provenance": true },
   "scripts": {
     "check": "bun run lint && bun run tsc && bun run test",
     "lint": "oxlint",
@@ -14,7 +36,8 @@
     "test": "vitest run",
     "build": "bun build ./src/cli.ts --outfile ./dist/cli.js --target node",
     "cli": "bun run src/cli.ts",
-    "prepare": "husky"
+    "prepublishOnly": "bun run build",
+    "prepare": "husky || true"
   },
   "dependencies": {
     "commander": "^11.1.0",
