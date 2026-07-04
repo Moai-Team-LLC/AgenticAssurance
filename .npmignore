@@ -1,10 +1,10 @@
-# The published tarball ships: the built CLI (dist/), the library source (src/, minus tests),
-# the attack corpus (attacks/), the policy pack, and the docs an auditor reads.
-# Everything below is dev-only and excluded. (With this file present, npm ignores .gitignore,
-# so dist/ IS published even though .gitignore lists it.)
+# The published tarball ships: the built CLI + library + types (dist/), the attack corpus
+# (attacks/), and the policy pack. TypeScript source is NOT shipped — the library entry is the
+# built dist/index.js + dist/index.d.ts. (With this file present, npm ignores .gitignore, so
+# dist/ IS published even though .gitignore lists it.)
 
-# tests + test fixtures
-**/*.test.ts
+# TypeScript source + tests (the built dist/ is what ships)
+src/
 test/
 fixtures/
 
@@ -14,7 +14,10 @@ fixtures/
 .oxlintrc.json
 .commitlintrc.json
 .nvmrc
+tsconfig.json
+tsconfig.dts.json
 vitest.config.ts
+CLAUDE.md
 .env
 .env.example
 docs/
