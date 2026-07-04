@@ -42,8 +42,9 @@ holds the guarantee, not by convenience:
    guarantee hold in **every** mode.
 3. **`PreToolUse` deny hooks** as a second enforcement layer plus **evidence
    emitters**: every blocked attempt emits an event.
-4. **`ConfigChange`** wired to evidence **always**; wired to *block* protected
-   paths **only if** the D2 spike confirms block capability.
+4. **`ConfigChange`** wired to evidence **always**, and — now that the D2 spike has
+   confirmed the block contract — to *block* protected settings/skill changes from
+   taking effect (except `policy_settings`) via `hooks/guard-config-change.mjs`.
 
 The pack ships under `policy-pack/` with a single source of truth
 (`protected-paths.json`) that the deny rules, the guard hook, and the tests all
@@ -65,8 +66,11 @@ it can be executed rather than merely described.
 - The pack's promise is honest and mechanically true: with the managed-settings
   fragment applied, self-modification of tools/permissions/hooks is blocked in
   every mode; without it, the README states exactly which modes are covered.
-- Blocking `ConfigChange` is gated behind the D2 spike (~½ day). Until the spike
-  resolves, `ConfigChange` is evidence-only — no false blocking guarantee.
+- `ConfigChange` blocking is now enabled (D2 resolved): it freezes protected
+  settings/skill changes from taking effect while installed, so in a hardened
+  deployment the boundary is changed only through managed (`policy_settings`).
+  Deployments that need settings live-editable remove `guard-config-change.mjs`
+  and keep the evidence hook.
 - More surface to maintain (settings fragment + deny rules + hooks) than a single
   hook file, and installers must apply the managed-settings fragment for the full
   guarantee — this is a documented install step, not an optional nicety.
@@ -102,8 +106,19 @@ is normal-mode redundancy; managed-settings is **org-level defense-in-depth**
 (removes the mode entirely, non-overridable by the agent) rather than the only
 layer that holds under bypass. `GUARANTEES_BY_MODE`, the pack README, and the
 settings comments were updated to match. The finding is version-specific (v2.1.201)
-and must be re-confirmed on CLI upgrades. **D2** (can `ConfigChange` *block*?)
-remains unrun and evidence-only.
+and must be re-confirmed on CLI upgrades.
+
+**D2 — resolved.** A second spike triggered a real `ConfigChange` (an agent editing
+`.claude/settings.local.json` under bypass). It fired headlessly and carried a
+richer schema than the docs list: `hook_event_name`, `source` (`local_settings`),
+`file_path`, plus the common fields. Docs confirm exit 2 blocks the change from
+taking effect for every source except `policy_settings` (managed). The pack now
+ships `hooks/guard-config-change.mjs`, wired into `ConfigChange`: it blocks (exit 2)
+a change whose `source` is `skills` or whose `file_path` is a protected control
+path, and never blocks `policy_settings` (the admin channel). The captured live
+event was replayed through the guard and correctly returned exit 2. The
+block-*effect* (config not reloaded) is not observable in a one-shot headless run —
+the file bytes are not reverted — but the fire + decision path is verified.
 
 ## Alternatives considered
 

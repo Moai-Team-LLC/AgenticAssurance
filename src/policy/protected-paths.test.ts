@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 
 import {
+  blocksConfigChange,
   GUARANTEES_BY_MODE,
   matchesProtectedPath,
   PROTECTED_PATHS,
@@ -69,12 +70,34 @@ describe("structural: the pack denies every protected glob in both layers", () =
     expect(managed.permissions.disableBypassPermissionsMode).toBe("disable")
   })
 
-  it("wires a PreToolUse guard, PostToolUse evidence, and a ConfigChange evidence hook", () => {
+  it("wires a PreToolUse guard, PostToolUse evidence, and a ConfigChange guard + evidence hook", () => {
     expect(settings.hooks["PreToolUse"]).toBeDefined()
     expect(settings.hooks["PostToolUse"]).toBeDefined()
     expect(settings.hooks["ConfigChange"]).toBeDefined()
-    expect(JSON.stringify(settings.hooks)).toContain("guard-protected-paths.mjs")
-    expect(JSON.stringify(settings.hooks)).toContain("AAL_AUDIT_URL")
+    const hooksJson = JSON.stringify(settings.hooks)
+    expect(hooksJson).toContain("guard-protected-paths.mjs")
+    expect(hooksJson).toContain("guard-config-change.mjs")
+    expect(hooksJson).toContain("AAL_AUDIT_URL")
+  })
+})
+
+describe("ConfigChange guard (D2 — verified on Claude Code v2.1.201)", () => {
+  it("blocks protected settings changes and any skills change", () => {
+    expect(blocksConfigChange("local_settings", "/r/.claude/settings.local.json")).toBe(true)
+    expect(blocksConfigChange("project_settings", "/r/.claude/settings.json")).toBe(true)
+    expect(blocksConfigChange("user_settings", "/home/u/.claude/settings.json")).toBe(true)
+    expect(blocksConfigChange("skills", "/home/u/.claude/skills/x/SKILL.md")).toBe(true)
+  })
+
+  it("never blocks managed (policy_settings) — the admin channel", () => {
+    expect(blocksConfigChange("policy_settings", "/etc/claude-code/managed-settings.json")).toBe(
+      false,
+    )
+  })
+
+  it("does not block config changes outside the protected set", () => {
+    expect(blocksConfigChange("project_settings", "/r/some/other-config.json")).toBe(false)
+    expect(blocksConfigChange("local_settings", undefined)).toBe(false)
   })
 })
 

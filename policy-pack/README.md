@@ -75,10 +75,14 @@ is caught too.
   mode) is version-specific evidence, not a doc guarantee. If a future version
   lets `bypassPermissions` skip hooks, the managed layer becomes load-bearing
   again — re-run `spike-bypass.sh` after upgrades.
-- **`ConfigChange` blocking (delta D2).** The event exists, but the docs do not
-  specify its input schema or whether a hook can *block* (vs only observe) a
-  config change. This pack uses `ConfigChange` for **evidence only**; add a deny
-  once the block contract is confirmed by the spike.
+- **`ConfigChange` blocking (delta D2 — resolved).** A spike confirmed the event
+  fires headlessly with `source` + `file_path`, and exit 2 blocks the change from
+  taking effect (except `policy_settings`). The pack now ships
+  `hooks/guard-config-change.mjs`, which blocks protected settings/skill changes
+  and lets `policy_settings` (managed) through. ⚠ This **freezes** ordinary edits
+  to `.claude/settings.json` / `settings.local.json` and any skills change from
+  taking effect — admins change the boundary via **managed** settings. Remove this
+  hook (keep the evidence hook) if settings must stay live-editable.
 - **HTTP-hook runtime semantics (delta D3).** sync/async, timeout, and retry
   behavior of `http` hooks are undocumented. The evidence stream is best-effort;
   do not assume it is synchronous or that a failed POST is retried.

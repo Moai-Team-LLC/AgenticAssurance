@@ -73,3 +73,23 @@ export const GUARANTEES_BY_MODE: Record<
   acceptEdits: { deny: true, hook: true, managed: true },
   bypassPermissions: { deny: false, hook: true, managed: true },
 }
+
+/**
+ * ConfigChange enforcement (delta D2, resolved by spike). A `ConfigChange` hook
+ * fires when a settings/skill file changes during a session; the event carries
+ * `source` (user_settings | project_settings | local_settings | policy_settings
+ * | skills) and `file_path`. Exit 2 blocks the change from taking effect — EXCEPT
+ * `policy_settings` (managed), which a hook cannot block and which remains the
+ * admin channel.
+ *
+ * This returns true when the change should be blocked: any `skills` change (a
+ * skill is an executable capability) or a change whose file is a protected
+ * control path (settings.json / settings.local.json). Managed (`policy_settings`)
+ * is never blocked here — it is how an admin legitimately updates the boundary.
+ */
+export const blocksConfigChange = (source: string, filePath: string | undefined): boolean => {
+  if (source === "policy_settings") {
+    return false
+  }
+  return source === "skills" || (filePath !== undefined && matchesProtectedPath(filePath))
+}

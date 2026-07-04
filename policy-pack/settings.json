@@ -43,6 +43,10 @@
       {
         "hooks": [
           {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/policy-pack/hooks/guard-config-change.mjs\""
+          },
+          {
             "type": "http",
             "url": "${AAL_AUDIT_URL}",
             "headers": { "Authorization": "Bearer ${AAL_AUDIT_TOKEN}" },
