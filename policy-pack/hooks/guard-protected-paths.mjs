@@ -8,11 +8,14 @@
  *
  * Deny protocol: exit code 2, reason on stderr (shown to the model). Exit 0 = allow.
  *
- * ⚠ Delta D1 (per live docs, permission-modes v2.1.199+): a PreToolUse deny does
- * NOT block in `bypassPermissions` mode — hooks run *after* permission rules and
- * cannot tighten bypass. The load-bearing guarantee comes from `permissions.deny`
- * plus managed-settings.json (`disableBypassPermissionsMode`). This hook is
- * second-layer enforcement + a per-attempt evidence trigger, never the sole gate.
+ * Spike result (Claude Code v2.1.201, 2026-07-04 — see policy-pack/README.md and
+ * ADR-0001): a PreToolUse exit-2 deny blocks the tool call even in
+ * `bypassPermissions` AND under `--dangerously-skip-permissions` (a no-hook
+ * control confirmed bypass really skips permission checks, so the block is the
+ * hook's). So this hook IS the load-bearing boundary in every mode — it also
+ * fires a per-attempt evidence trigger. `permissions.deny` RULES are still
+ * skipped under bypass; managed-settings (`disableBypassPermissionsMode`)
+ * additionally removes the mode entirely for org-level enforcement.
  */
 
 import { readFileSync } from "node:fs"

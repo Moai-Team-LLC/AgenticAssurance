@@ -50,11 +50,19 @@ export const shellTouchesProtectedPath = (command: string): boolean =>
   PROTECTED_PATHS.shellMarkers.some((marker) => command.includes(marker))
 
 /**
- * The honest per-permission-mode enforcement matrix (delta D1). `deny` =
- * permissions.deny rule; `managed` = managed-settings disableBypassPermissions +
- * deny; `hook` = the PreToolUse guard. `true` means that layer's block holds in
- * the mode. In bypassPermissions ONLY the managed layer holds — so the pack's
- * guarantee is conditional on installing managed-settings.json.
+ * The empirically-verified per-permission-mode enforcement matrix. `deny` =
+ * permissions.deny rule; `hook` = the PreToolUse guard hook; `managed` =
+ * managed-settings (disableBypassPermissionsMode + deny). `true` means that
+ * layer's block holds in the mode.
+ *
+ * Spike result (Claude Code v2.1.201, 2026-07-04 — see ADR-0001 "Empirical
+ * results"): a PreToolUse command hook returning exit 2 blocks the tool call in
+ * EVERY mode tested, including `bypassPermissions` AND `--dangerously-skip-
+ * permissions` (a control run with no hook confirmed bypass truly skips
+ * permission checks, so the block is attributable to the hook). This REVERSES
+ * matrix delta D1: the hook — not just managed settings — holds under bypass.
+ * Permission *rules* (`permissions.deny`/`allow`) are still skipped under bypass,
+ * so `deny` is false there; the hook and the managed layer both hold.
  */
 export const GUARANTEES_BY_MODE: Record<
   string,
@@ -63,5 +71,5 @@ export const GUARANTEES_BY_MODE: Record<
   default: { deny: true, hook: true, managed: true },
   plan: { deny: true, hook: true, managed: true },
   acceptEdits: { deny: true, hook: true, managed: true },
-  bypassPermissions: { deny: false, hook: false, managed: true },
+  bypassPermissions: { deny: false, hook: true, managed: true },
 }

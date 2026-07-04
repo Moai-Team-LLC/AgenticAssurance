@@ -8,25 +8,29 @@ This is the productized companion to AAL Core. AAL Core *detects* boundary
 violations offensively; this pack *prevents* the most direct one — an agent
 editing its own guardrails — and streams an evidence event for every attempt.
 
-## Why three layers (and the one that actually holds)
+## Why layered (and what the spike found)
 
-Per the live Claude Code docs (`permission-modes`, v2.1.199+), **a `PreToolUse`
-deny hook does NOT block in `bypassPermissions` mode** — hooks run *after*
-permission rules and cannot tighten `bypassPermissions`. So a hook-only pack would
-advertise a guarantee it does not have. This pack layers three controls and is
-explicit about which holds in which mode:
+The boundary is enforced by three controls. The load-bearing one turned out to be
+the **hook**: an empirical spike (Claude Code **v2.1.201**, 2026-07-04 — see
+[ADR-0001](../docs/adr/0001-layered-cycle-of-trust-enforcement.md)) showed a
+`PreToolUse` exit-2 deny blocks the tool call in **every** mode tested, including
+`bypassPermissions` **and** `--dangerously-skip-permissions`. A no-hook control run
+confirmed bypass genuinely skips permission checks — so the block is the hook's,
+not a permission rule's. This **reverses** the earlier doc-based reading (matrix
+delta D1, which had claimed hooks don't hold under bypass).
 
-| Layer | File | Holds in default / plan / acceptEdits | Holds in **bypassPermissions** |
+| Layer | File | default / plan / acceptEdits | **bypassPermissions** |
 |---|---|:---:|:---:|
-| `permissions.deny` rules | `settings.json` | ✅ | ❌ |
-| `PreToolUse` guard hook | `settings.json` → `hooks/guard-protected-paths.mjs` | ✅ (defense-in-depth) | ❌ |
-| **Managed settings** (`disableBypassPermissionsMode` + deny) | `managed-settings.json` | ✅ | ✅ |
+| `permissions.deny` rules | `settings.json` | ✅ | ❌ (permission rules are skipped under bypass) |
+| **`PreToolUse` guard hook** | `settings.json` → `hooks/guard-protected-paths.mjs` | ✅ | ✅ **(verified v2.1.201)** |
+| Managed settings (`disableBypassPermissionsMode` + deny) | `managed-settings.json` | ✅ | ✅ (also removes the mode) |
 
-**Take-away:** only `managed-settings.json` makes the boundary hold in *every*
-mode, because it both denies the paths **and removes `bypassPermissions` as an
-option**. Install it if you need the guarantee unconditionally. The other two
-layers are the everyday enforcement + the evidence trigger. This matrix is
-asserted in `src/policy/protected-paths.test.ts` (`GUARANTEES_BY_MODE`).
+**Take-away:** the **hook alone holds the boundary in every mode**, so the pack's
+core guarantee does not depend on managed settings. Install `managed-settings.json`
+anyway for **org-level defense-in-depth** — it removes `bypassPermissions` as an
+option entirely and its deny rules cannot be edited away by the agent. This matrix
+is asserted in `src/policy/protected-paths.test.ts` (`GUARANTEES_BY_MODE`); the
+live re-run is [`spike-bypass.sh`](./spike-bypass.sh).
 
 ## What is protected
 
@@ -62,9 +66,15 @@ is caught too.
 
 ## Open items — verify before rollout
 
-- **`disableBypassPermissionsMode`** (`managed-settings.json`) is the load-bearing
-  key for the bypass guarantee. Confirm its exact name/values against the current
-  managed-settings docs before you rely on it.
+- **`disableBypassPermissionsMode`** (`managed-settings.json`) drives the
+  org-level defense-in-depth (removing bypass as an option). The hook already
+  holds the boundary in every mode, so this key is not the sole guarantee — but
+  confirm its exact name/values against the current managed-settings docs before
+  relying on the org-level control.
+- **Re-run the spike per CLI version.** The v2.1.201 result (hook blocks in every
+  mode) is version-specific evidence, not a doc guarantee. If a future version
+  lets `bypassPermissions` skip hooks, the managed layer becomes load-bearing
+  again — re-run `spike-bypass.sh` after upgrades.
 - **`ConfigChange` blocking (delta D2).** The event exists, but the docs do not
   specify its input schema or whether a hook can *block* (vs only observe) a
   config change. This pack uses `ConfigChange` for **evidence only**; add a deny
@@ -83,6 +93,9 @@ is caught too.
   guarantee matrix is honest about bypass.
 - **Live (the D1/D2 spike):** run [`spike-bypass.sh`](./spike-bypass.sh) with the
   real `claude` CLI. It drives an agent to modify its own `settings.json` under
-  each permission mode and records what actually happened — the empirical proof
-  the docs leave open. Expected: blocked in default/plan/acceptEdits by any layer;
-  blocked in bypassPermissions **only** when `managed-settings.json` is installed.
+  each permission mode and records what actually happened. Result on **v2.1.201**:
+  the `PreToolUse` hook blocked the write in every mode — default, plan,
+  acceptEdits, `bypassPermissions`, and `--dangerously-skip-permissions` — while a
+  no-hook control confirmed bypass really does skip permission checks. Re-run this
+  on your target CLI version; the hook's cross-mode enforcement is the property to
+  re-confirm.

@@ -73,8 +73,37 @@ it can be executed rather than merely described.
 - The `disableBypassPermissionsMode` key and the hook matcher grammar are flagged
   in the README as "verify against current docs" — the pack should not be trusted
   in production until those are confirmed for the target CLI version.
-- Revisit trigger: if a future Claude Code version lets hooks tighten
-  `bypassPermissions` (reversing D1), layers 1–2 can be simplified.
+- Revisit trigger: if a future Claude Code version lets `bypassPermissions` skip
+  hooks (reversing the spike result below), the managed layer becomes the only
+  thing holding under bypass — re-run the spike after upgrades.
+
+## Empirical results (spike, Claude Code v2.1.201 — 2026-07-04)
+
+The D1 premise in the Context was **refuted by the live spike**
+(`policy-pack/spike-bypass.sh`, run once a `claude` CLI was installed). Controlled
+result:
+
+- **Control — no hook, `bypassPermissions`:** the Write **succeeded** (a write that
+  default mode denies), proving bypass genuinely skips permission checks.
+- **Hook + `bypassPermissions`:** the `PreToolUse` exit-2 deny **blocked** the Write.
+- **Hook + `--dangerously-skip-permissions`:** also **blocked**.
+
+So a PreToolUse deny hook **holds in every mode, including bypass** — the opposite
+of the doc-based D1 reading. The reconciliation: permission *rules*
+(`permissions.deny`/`allow`) are skipped under bypass, but *hooks* are not
+("hooks can only tighten, never loosen" is consistent with this); the doc-verify
+pass appears to have conflated the two. The captured event JSON also confirmed the
+hook payload shape (`session_id`, `transcript_path`, `cwd`, `tool_name`,
+`tool_input`), which validates the WS2 ingestion parser.
+
+**Effect on this decision:** the layered design stands, but the *reason* shifts.
+The **hook is the load-bearing layer** and holds unconditionally; `permissions.deny`
+is normal-mode redundancy; managed-settings is **org-level defense-in-depth**
+(removes the mode entirely, non-overridable by the agent) rather than the only
+layer that holds under bypass. `GUARANTEES_BY_MODE`, the pack README, and the
+settings comments were updated to match. The finding is version-specific (v2.1.201)
+and must be re-confirmed on CLI upgrades. **D2** (can `ConfigChange` *block*?)
+remains unrun and evidence-only.
 
 ## Alternatives considered
 

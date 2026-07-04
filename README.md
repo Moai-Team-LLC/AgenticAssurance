@@ -59,10 +59,11 @@ dynamic attack `not_verified`.
 Where AAL Core *detects* boundary violations offensively, [`policy-pack/`](./policy-pack/)
 *prevents* the most direct one — an agent editing its own tools, permissions, or
 hooks — and streams a hash-not-text evidence event for every attempt (→ AgenticMind
-`/hooks/audit`). It layers `permissions.deny` + a managed-settings fragment that
-disables `bypassPermissions` + a `PreToolUse` guard hook, and is explicit about
-which layer holds in which permission mode (a `PreToolUse` deny alone does **not**
-hold under `bypassPermissions`). See [`policy-pack/README.md`](./policy-pack/README.md)
+`/hooks/audit`). It layers a `PreToolUse` guard hook + `permissions.deny` + a
+managed-settings fragment that disables `bypassPermissions`. A live spike (Claude
+Code v2.1.201) showed the **hook blocks in every mode, including `bypassPermissions`
+and `--dangerously-skip-permissions`** — so the hook is the load-bearing layer and
+managed settings are org-level defense-in-depth. See [`policy-pack/README.md`](./policy-pack/README.md)
 and [ADR-0001](./docs/adr/0001-layered-cycle-of-trust-enforcement.md); the offline
 gate is `bun x vitest run src/policy/`.
 

@@ -78,10 +78,12 @@ describe("structural: the pack denies every protected glob in both layers", () =
   })
 })
 
-describe("the guarantee matrix is honest about bypassPermissions (D1)", () => {
-  it("only the managed layer holds under bypassPermissions", () => {
+describe("the guarantee matrix matches the spike (Claude Code v2.1.201)", () => {
+  it("under bypassPermissions the hook and managed layers hold; only the permission rule is skipped", () => {
+    // Empirically verified: a PreToolUse exit-2 hook blocks even under
+    // bypassPermissions / --dangerously-skip-permissions (ADR-0001, spike).
     const bypass = GUARANTEES_BY_MODE["bypassPermissions"]
-    expect(bypass).toEqual({ deny: false, hook: false, managed: true })
+    expect(bypass).toEqual({ deny: false, hook: true, managed: true })
   })
 
   it("all three layers hold in the everyday modes", () => {

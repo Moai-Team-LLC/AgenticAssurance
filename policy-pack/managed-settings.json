@@ -1,5 +1,5 @@
 {
-  "$comment": "Cycle-of-Trust reference policy pack — ADMIN MANAGED settings. Install at the OS managed-settings path (macOS: /Library/Application Support/ClaudeCode/managed-settings.json; Linux: /etc/claude-code/managed-settings.json). Managed settings CANNOT be overridden by the user or the agent — this is the only layer whose deny survives, and disableBypassPermissionsMode is the only mechanism that makes the boundary hold in EVERY permission mode (delta D1). ⚠ Verify `disableBypassPermissionsMode` against the current managed-settings docs before rollout — it is the load-bearing key.",
+  "$comment": "Cycle-of-Trust reference policy pack — ADMIN MANAGED settings. Install at the OS managed-settings path (macOS: /Library/Application Support/ClaudeCode/managed-settings.json; Linux: /etc/claude-code/managed-settings.json). Managed settings CANNOT be overridden by the user or the agent. The PreToolUse guard hook already blocks in every mode (verified, Claude Code v2.1.201), so this managed layer is org-level DEFENSE-IN-DEPTH: disableBypassPermissionsMode removes bypassPermissions as an option entirely, and these deny rules cannot be edited away by the agent. ⚠ Verify `disableBypassPermissionsMode` against the current managed-settings docs before rollout.",
   "permissions": {
     "disableBypassPermissionsMode": "disable",
     "deny": [

@@ -1,5 +1,5 @@
 {
-  "$comment": "Cycle-of-Trust reference policy pack — PROJECT/USER settings fragment. Merge into .claude/settings.json. This layer holds in default / plan / acceptEdits / dontAsk modes; it is NOT sufficient for bypassPermissions (delta D1) — install managed-settings.json for that. Set AAL_AUDIT_URL / AAL_AUDIT_TOKEN in the environment to stream evidence to AgenticMind /hooks/audit (WS2).",
+  "$comment": "Cycle-of-Trust reference policy pack — PROJECT/USER settings fragment. Merge into .claude/settings.json. The `permissions.deny` rules hold in default/plan/acceptEdits/dontAsk but are SKIPPED under bypassPermissions; the `PreToolUse` guard hook in this same file, however, blocks in EVERY mode including bypassPermissions and --dangerously-skip-permissions (verified, Claude Code v2.1.201 — see policy-pack/README.md). Install managed-settings.json to additionally remove bypass as an option org-wide. Set AAL_AUDIT_URL / AAL_AUDIT_TOKEN in the environment to stream evidence to AgenticMind /hooks/audit (WS2).",
   "permissions": {
     "deny": [
       "Write(**/.claude/settings.json)",
