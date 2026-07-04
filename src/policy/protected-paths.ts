@@ -31,11 +31,9 @@ export const PROTECTED_PATHS: ProtectedPaths = protectedPathsSchema.parse(
 const globToRegExp = (glob: string): RegExp => {
   const source = glob
     .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*\*\//g, "\x00") // **/ → optional directory prefix (also matches zero segments)
-    .replace(/\*\*/g, "\x01") // ** → anything, across segments
-    .replace(/\*/g, "[^/]*") // * → within a single segment
-    .replace(/\x00/g, "(?:.*/)?")
-    .replace(/\x01/g, ".*")
+    // Single alternation pass (longest token first) so `*` inside a `**` expansion is never
+    // re-processed — no control-char sentinels needed (keeps oxlint's no-control-regex happy).
+    .replace(/\*\*\/|\*\*|\*/g, (m) => (m === "**/" ? "(?:.*/)?" : m === "**" ? ".*" : "[^/]*"))
   return new RegExp(`^${source}$`)
 }
 

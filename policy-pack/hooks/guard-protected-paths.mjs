@@ -30,11 +30,8 @@ const { globs, shellMarkers } = JSON.parse(
 const globToRe = (g) => {
   const re = g
     .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*\*\//g, "\x00") // **/ → optional directory prefix (also matches zero segments)
-    .replace(/\*\*/g, "\x01") // ** → anything, across segments
-    .replace(/\*/g, "[^/]*") // * → within a single segment
-    .replace(/\x00/g, "(?:.*/)?")
-    .replace(/\x01/g, ".*")
+    // Single alternation pass (longest token first) — no control-char sentinels needed.
+    .replace(/\*\*\/|\*\*|\*/g, (m) => (m === "**/" ? "(?:.*/)?" : m === "**" ? ".*" : "[^/]*"))
   return new RegExp("^" + re + "$")
 }
 const globRes = globs.map(globToRe)

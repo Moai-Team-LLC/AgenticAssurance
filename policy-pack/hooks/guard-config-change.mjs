@@ -24,13 +24,11 @@ const here = dirname(fileURLToPath(import.meta.url))
 const { globs } = JSON.parse(readFileSync(resolve(here, "../protected-paths.json"), "utf8"))
 
 const globToRe = (g) => {
+  // Convert a glob to a regex in a single alternation pass (longest token first) so `*` inside a
+  // `**` expansion is never re-processed — no placeholder sentinels needed.
   const re = g
     .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*\*\//g, "\x00")
-    .replace(/\*\*/g, "\x01")
-    .replace(/\*/g, "[^/]*")
-    .replace(/\x00/g, "(?:.*/)?")
-    .replace(/\x01/g, ".*")
+    .replace(/\*\*\/|\*\*|\*/g, (m) => (m === "**/" ? "(?:.*/)?" : m === "**" ? ".*" : "[^/]*"))
   return new RegExp("^" + re + "$")
 }
 const globRes = globs.map(globToRe)
