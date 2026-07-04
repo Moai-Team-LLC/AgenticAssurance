@@ -26,7 +26,6 @@
   ],
   "bin": { "aal": "./dist/cli.js" },
   "exports": { ".": "./src/index.ts" },
-  "files": ["dist", "src", "attacks", "fixtures", "CLAUDE.md"],
   "engines": { "node": ">=22.18" },
   "publishConfig": { "access": "public", "provenance": true },
   "scripts": {

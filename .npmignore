@@ -1,0 +1,28 @@
+# The published tarball ships: the built CLI (dist/), the library source (src/, minus tests),
+# the attack corpus (attacks/), the policy pack, and the docs an auditor reads.
+# Everything below is dev-only and excluded. (With this file present, npm ignores .gitignore,
+# so dist/ IS published even though .gitignore lists it.)
+
+# tests + test fixtures
+**/*.test.ts
+test/
+fixtures/
+
+# dev tooling / CI / config
+.github/
+.husky/
+.oxlintrc.json
+.commitlintrc.json
+.nvmrc
+vitest.config.ts
+.env
+.env.example
+docs/
+
+# artifacts / local
+node_modules/
+coverage/
+*.tgz
+*.log
+*.sarif
+.DS_Store
