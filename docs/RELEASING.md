@@ -25,11 +25,24 @@ This project publishes to npm as **`agent-assurance`** and cuts a GitHub Release
 
 ## Cut a release
 
-The version is the single source of truth in `package.json`.
+The version is the single source of truth in `package.json`. **Run every command from the repo
+root** (`cd` into it first) — not from your home directory.
+
+### First release (0.1.0)
+
+`package.json` is already at `0.1.0`, so do **not** run `npm version` — just tag it:
+
+```bash
+git checkout main
+git tag v0.1.0
+git push origin v0.1.0        # triggers release.yml → publishes to npm
+```
+
+### Subsequent releases
 
 ```bash
 # 1. bump version (choose one) — follows SemVer; Conventional Commits guide the bump
-npm version patch   # or: minor | major
+npm version patch   # or: minor | major  (this also creates the git tag)
 
 # 2. update CHANGELOG.md (move Unreleased → the new version + date)
 
