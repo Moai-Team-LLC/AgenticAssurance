@@ -16,14 +16,6 @@ The framework-neutral offensive core of the **Agent Assurance Layer (AAL)**. Giv
 It is **not** a runtime guardrail and **not** a generic code scanner. The AgenticMind-native
 compliance/evidence layer (AIUC-1 gap analysis, auditor bundle) is a separate package.
 
-> Part of the Moai Team agentic stack:
-> **[Standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** (the contract) →
-> **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** (knowledge & memory) →
-> **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** (runtime & operations) →
-> **[AgenticPerformance](https://github.com/Moai-Team-LLC/AgenticPerformance)** (evals & improvement) →
-> **AgenticAssurance** (this repo — security & assurance). See the
-> [full ecosystem](#-the-agenticproduct-ecosystem) below.
-
 ## Install
 
 ```bash
@@ -95,23 +87,18 @@ gate is `bun x vitest run src/policy/`.
 
 ## 🌐 The AgenticProduct ecosystem
 
-The AgenticProduct family — a standard plus runnable reference implementations, built in the
-open. Each layer is its own product; adopt the ones you need.
+One standard and five reference implementations you can run — together they close the loop every production agent needs: **run → remember → measure → heal**, with security as a cross-cutting assurance plane.
 
-| | Repo | Layer |
+|  | Project | Role |
 |---|---|---|
-| 📐 | **[agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** | The contract — principles, the autonomy ladder, the 8-layer harness, eval discipline. |
-| 🧠 | **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** | Knowledge & memory — auditable, self-improving, citation-enforced, over MCP. |
-| ⚙️ | **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** | Runtime & operations — deployable manifests, bounded runner, scheduling, durable backlog, fleet health. |
-| 📈 | **[AgenticPerformance](https://github.com/Moai-Team-LLC/AgenticPerformance)** | Performance & improvement — traces, evals, error taxonomy, and the governed improvement loop. |
-| 🩹 | **AgenticSelfHealingCode** *(private beta — opening soon)* | Self-healing ops — production monitoring, auto-repair, and test-suite healing. |
-| 🛡️ | **[AgenticAssurance](https://github.com/Moai-Team-LLC/AgenticAssurance)** (this repo) | Assurance & security — red-team any agent for the OWASP Agentic risks (toxic-flow graph, side-effect detection, SARIF) and prove it is controlled with an auditor-ready evidence bundle. Ships on npm as `agent-assurance`. |
+| 📐 | [agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard) | The contract — principles, the autonomy ladder, the harness layers, and eval discipline (plus a Claude Code skill set). |
+| ⚙️ | [AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps) | Runtime & operations — deployable manifests, scheduling, a durable backlog, a bounded runner, and fleet health. |
+| 🧠 | [AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind) | Knowledge & memory — auditable, self-improving, citation-enforced, over MCP; Postgres-only. |
+| 📈 | [AgenticPerformance](https://github.com/Moai-Team-LLC/AgenticPerformance) | Evals & observability — OTel traces, golden-set evals with a CI gate, failure clusters, and the improvement loop. |
+| 🩹 | [AgenticSelfHealingCode](https://github.com/Moai-Team-LLC/AgenticSelfHealingCode) | Self-healing ops — production monitoring, incident diagnosis/RCA, and test-suite healing on earned autonomy. |
+| 🛡️ | **AgenticAssurance** (this repo) | Security & assurance — red-teams any agent (OWASP Agentic + MITRE ATLAS), a toxic-flow graph, and SARIF output. |
 
-**How they compose:** the Standard sets the contract; AgenticMind is the auditable engine and
-judge; AgenticOps runs the fleet; AgenticPerformance measures and improves it; AgenticSelfHealingCode
-repairs what breaks — and **Agent Assurance** red-teams the result and proves it is safe under attack
-and controlled enough to pass an enterprise security review, reusing the Standard's doctrine,
-AgenticMind's artifacts + judge, and AgenticPerformance's autonomy-ladder / Cycle-of-Trust invariant.
+**How they compose.** **AgenticOps** runs the fleet, **AgenticMind** gives agents auditable knowledge & memory, **AgenticPerformance** measures every run with traces and evals, and **AgenticSelfHealingCode** repairs what breaks — closing the **run → remember → measure → heal** loop. **AgenticAssurance** red-teams any agent in that loop for security, and the whole stack conforms to the **[agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard)**.
 
 ## License
 MIT © Moai Team LLC
