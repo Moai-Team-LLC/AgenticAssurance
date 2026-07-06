@@ -16,10 +16,18 @@ The framework-neutral offensive core of the **Agent Assurance Layer (AAL)**. Giv
 It is **not** a runtime guardrail and **not** a generic code scanner. The AgenticMind-native
 compliance/evidence layer (AIUC-1 gap analysis, auditor bundle) is a separate package.
 
+> Part of the Moai Team agentic stack:
+> **[Standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** (the contract) →
+> **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** (knowledge & memory) →
+> **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** (runtime & operations) →
+> **[AgenticPerformance](https://github.com/Moai-Team-LLC/AgenticPerformance)** (evals & improvement) →
+> **Agent Assurance** (this repo — security & assurance). See the
+> [full ecosystem](#-the-agenticproduct-ecosystem) below.
+
 ## Install
 
 ```bash
-# one-off, no install (once published):
+# published on npm — run it with no install:
 npx agent-assurance scan path/to/manifest.json --sarif out.sarif
 
 # or from source (contributors):
@@ -84,6 +92,26 @@ gate is `bun x vitest run src/policy/`.
 - **Fail-closed:** inconclusive ⇒ `not_verified`, never `safe`.
 - **Hash-not-text:** never write a raw secret or attack payload to a log/report/fixture.
 - **Read/report-only:** this core never remediates and never fires a real side effect.
+
+## 🌐 The AgenticProduct ecosystem
+
+The AgenticProduct family — a standard plus runnable reference implementations, built in the
+open. Each layer is its own product; adopt the ones you need.
+
+| | Repo | Layer |
+|---|---|---|
+| 📐 | **[agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** | The contract — principles, the autonomy ladder, the 8-layer harness, eval discipline. |
+| 🧠 | **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** | Knowledge & memory — auditable, self-improving, citation-enforced, over MCP. |
+| ⚙️ | **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** | Runtime & operations — deployable manifests, bounded runner, scheduling, durable backlog, fleet health. |
+| 📈 | **[AgenticPerformance](https://github.com/Moai-Team-LLC/AgenticPerformance)** | Performance & improvement — traces, evals, error taxonomy, and the governed improvement loop. |
+| 🩹 | **AgenticSelfHealingCode** *(private beta — opening soon)* | Self-healing ops — production monitoring, auto-repair, and test-suite healing. |
+| 🛡️ | **[agent-assurance](https://github.com/Moai-Team-LLC/agent-assurance)** (this repo) | Assurance & security — red-team any agent for the OWASP Agentic risks (toxic-flow graph, side-effect detection, SARIF) and prove it is controlled with an auditor-ready evidence bundle. |
+
+**How they compose:** the Standard sets the contract; AgenticMind is the auditable engine and
+judge; AgenticOps runs the fleet; AgenticPerformance measures and improves it; AgenticSelfHealingCode
+repairs what breaks — and **Agent Assurance** red-teams the result and proves it is safe under attack
+and controlled enough to pass an enterprise security review, reusing the Standard's doctrine,
+AgenticMind's artifacts + judge, and AgenticPerformance's autonomy-ladder / Cycle-of-Trust invariant.
 
 ## License
 MIT © Moai Team LLC
