@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability
-    url: https://github.com/Moai-Team-LLC/agent-assurance/security/advisories/new
+    url: https://github.com/Moai-Team-LLC/AgenticAssurance/security/advisories/new
     about: Please report security vulnerabilities privately — do NOT open a public issue. See SECURITY.md.
   - name: Agentic Product Standard (doctrine)
     url: https://github.com/Moai-Team-LLC/agentic-product-standard

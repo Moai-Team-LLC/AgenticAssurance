@@ -41,4 +41,4 @@ Assurance Layer.
   written raw to a log, report, or committed artifact.
 - No engine dependency: the core imports no AgenticMind code.
 
-[0.1.0]: https://github.com/Moai-Team-LLC/agent-assurance/releases/tag/v0.1.0
+[0.1.0]: https://github.com/Moai-Team-LLC/AgenticAssurance/releases/tag/v0.1.0

@@ -13,7 +13,7 @@ This project publishes to npm as **`agent-assurance`** and cuts a GitHub Release
    Without a committed `bun.lock`, the frozen install in CI/release fails.
 1. **Create the GitHub repo** (public) and push:
    ```bash
-   gh repo create Moai-Team-LLC/agent-assurance --public --source . --remote origin --push
+   gh repo create Moai-Team-LLC/AgenticAssurance --public --source . --remote origin --push
    ```
 2. **npm access:** the publishing account must be able to publish `agent-assurance`
    (unscoped, public). Create an **automation** npm token and add it to the repo:

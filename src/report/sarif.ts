@@ -80,7 +80,7 @@ export function toSarif(report: ScanReport): SarifLog {
         tool: {
           driver: {
             name: "AAL Core",
-            informationUri: "https://github.com/Moai-Team-LLC/agent-assurance",
+            informationUri: "https://github.com/Moai-Team-LLC/AgenticAssurance",
             version: AAL_CORE_VERSION,
             rules,
           },
