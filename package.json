@@ -42,7 +42,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
-    "commander": "^11.1.0",
+    "commander": "^15.0.0",
     "neverthrow": "^8.2.0",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
