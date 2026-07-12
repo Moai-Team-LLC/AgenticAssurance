@@ -50,11 +50,11 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
-    "@dotenvx/dotenvx": "^1.67.0",
-    "@types/node": "^25.9.1",
+    "@dotenvx/dotenvx": "^2.6.0",
+    "@types/node": "^26.1.1",
     "husky": "^9.1.7",
     "oxlint": "^1.66.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.7"
   }
 }
