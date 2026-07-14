@@ -1,6 +1,7 @@
 # AgenticAssurance
 
 [![CI](https://github.com/Moai-Team-LLC/AgenticAssurance/actions/workflows/ci.yml/badge.svg)](https://github.com/Moai-Team-LLC/AgenticAssurance/actions/workflows/ci.yml)
+[![Implements: Agentic Product Standard](https://img.shields.io/badge/implements-Agentic%20Product%20Standard-CD7722.svg)](https://github.com/Moai-Team-LLC/agentic-product-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![OWASP Agentic](https://img.shields.io/badge/OWASP-Agentic%20taxonomy-informational)](https://genai.owasp.org/)
 [![SARIF 2.1.0](https://img.shields.io/badge/output-SARIF%202.1.0-brightgreen)](https://sarifweb.azurewebsites.net/)
